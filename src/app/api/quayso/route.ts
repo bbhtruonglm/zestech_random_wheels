@@ -12,7 +12,7 @@ const fourthPrizeList = [444, 555, 556]; // Giải 4
 // Danh sách UID không trúng
 const loseList = [666, 777, 888, 999];
 
-function corsResponse(data: any, status = 200) {
+function corsResponse(data: unknown, status = 200) {
   return new NextResponse(JSON.stringify(data), {
     status,
     headers: {
