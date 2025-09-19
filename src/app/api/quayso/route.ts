@@ -97,25 +97,26 @@ export async function POST(req: NextRequest) {
     } else if (loseList.includes(uidNum)) {
       prizeName = "Không trúng";
     } else {
-      // nếu không thuộc mock → dùng index_my_gift của core để suy ra tên giải
-      const index = coreData?.data?.index_my_gift;
-      switch (index) {
-        case 1:
-          prizeName = "Giải Đặc Biệt";
-          break;
-        case 2:
-          prizeName = "Giải Nhì";
-          break;
-        case 3:
-          prizeName = "Giải 3";
-          break;
-        case 4:
-          prizeName = "Giải 4";
-          break;
-        default:
-          prizeName = "Không trúng";
-          break;
-      }
+      //   // nếu không thuộc mock → dùng index_my_gift của core để suy ra tên giải
+      //   const index = coreData?.data?.index_my_gift;
+      //   switch (index) {
+      //     case 1:
+      //       prizeName = "Giải Đặc Biệt";
+      //       break;
+      //     case 2:
+      //       prizeName = "Giải Nhì";
+      //       break;
+      //     case 3:
+      //       prizeName = "Giải 3";
+      //       break;
+      //     case 4:
+      //       prizeName = "Giải 4";
+      //       break;
+      //     default:
+      //       prizeName = "Không trúng";
+      //       break;
+      //   }
+      prizeName = "Không trúng";
     }
 
     // 4️⃣ Trả kết quả về client
