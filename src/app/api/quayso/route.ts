@@ -1,74 +1,75 @@
 // app/api/quayso/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
-// List giả định
-const winList = [111, 222, 333, 444, 555]; // List ngẫu nhiên trúng giải 3/4
-const loseList = [666, 777, 888, 999]; // List ngẫu nhiên không trúng
+// Danh sách UID giả định
+const specialPrizeUID = 123; // Giải Đặc Biệt
+const secondPrizeUID = 234; // Giải Nhì
+
+// Danh sách UID giải 3 & giải 4
+const thirdPrizeList = [111, 222, 333]; // Giải 3
+const fourthPrizeList = [444, 555, 556]; // Giải 4
+
+// Danh sách UID không trúng
+const loseList = [666, 777, 888, 999];
+
+function corsResponse(data: any, status = 200) {
+  return new NextResponse(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+  });
+}
+
+export async function OPTIONS() {
+  // Preflight request
+  return corsResponse({}, 200);
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { user_id, uid } = body;
 
   if (!user_id || !uid) {
-    return NextResponse.json(
+    return corsResponse(
       { status: "error", message: "Thiếu user_id hoặc uid" },
-      { status: 400 }
+      400
     );
   }
 
-  // ép kiểu uid thành số (nếu cần)
   const uidNum = Number(uid);
 
-  // Check giải đặc biệt
-  if (uidNum === 123) {
-    return NextResponse.json({
-      status: "ok",
-      prize: "Giải Đặc Biệt",
-      user_id,
-      uid,
-    });
+  // Giải đặc biệt
+  if (uidNum === specialPrizeUID) {
+    return corsResponse({ status: "ok", prize: "Giải Đặc Biệt", user_id, uid });
   }
 
-  // Check giải nhì
-  if (uidNum === 234) {
-    return NextResponse.json({
-      status: "ok",
-      prize: "Giải Nhì",
-      user_id,
-      uid,
-    });
+  // Giải nhì
+  if (uidNum === secondPrizeUID) {
+    return corsResponse({ status: "ok", prize: "Giải Nhì", user_id, uid });
   }
 
-  // Check list trúng giải 3/4
-  if (winList.includes(uidNum)) {
-    // Random giải 3 hoặc 4
-    const prize = Math.random() > 0.5 ? "Giải 3" : "Giải 4";
-    return NextResponse.json({
-      status: "ok",
-      prize,
-      user_id,
-      uid,
-    });
+  // Giải 3
+  if (thirdPrizeList.includes(uidNum)) {
+    return corsResponse({ status: "ok", prize: "Giải 3", user_id, uid });
   }
 
-  // Check list không trúng
+  // Giải 4
+  if (fourthPrizeList.includes(uidNum)) {
+    return corsResponse({ status: "ok", prize: "Giải 4", user_id, uid });
+  }
+
+  // Không trúng
   if (loseList.includes(uidNum)) {
-    return NextResponse.json({
-      status: "ok",
-      prize: "Không trúng",
-      user_id,
-      uid,
-    });
+    return corsResponse({ status: "ok", prize: "Không trúng", user_id, uid });
   }
 
-  // Ngoài danh sách → mã không đúng
-  return NextResponse.json(
-    {
-      status: "error",
-      message: "Mã không đúng",
-      user_id,
-      uid,
-    },
-    { status: 400 }
+  // Ngoài danh sách
+  return corsResponse(
+    { status: "error", message: "Mã không đúng", user_id, uid },
+    400
   );
 }
