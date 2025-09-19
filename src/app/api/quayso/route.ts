@@ -14,11 +14,21 @@ interface CoreData {
 }
 
 // Config mock
-const specialPrizeUID = 123; // Giải Đặc Biệt
-const secondPrizeUID = 234; // Giải Nhì
-const thirdPrizeList = [111, 222, 333]; // Giải 3
-const fourthPrizeList = [444, 555, 556, 557, 558, 559, 560, 561, 562, 563, 564]; // Giải 4
-const loseList = [666, 777, 888, 999]; // Không trúng
+const specialPrizeUID = [
+  123, 1231, 1232, 1233, 1234, 1235, 1236, 1237, 1238, 1239,
+]; // Giải Đặc Biệt
+const secondPrizeUID = [
+  234, 2341, 2342, 2343, 2344, 2345, 2346, 2347, 2348, 2349,
+]; // Giải Nhì
+const thirdPrizeList = [
+  111, 222, 333, 3331, 3332, 3333, 3334, 3335, 3336, 3337, 3338, 3339,
+]; // Giải 3
+const fourthPrizeList = [
+  567, 568, 569, 570, 571, 572, 573, 574, 575, 576, 577, 578, 579,
+]; // Giải 4
+const loseList = [
+  666, 777, 888, 999, 9991, 9992, 9993, 9994, 9995, 9996, 9997, 9998,
+]; // Không trúng
 
 function corsResponse(data: Record<string, unknown>, status = 200) {
   return new NextResponse(JSON.stringify(data), {
@@ -86,9 +96,9 @@ export async function POST(req: NextRequest) {
     const uidNum = Number(uid);
     let prizeName: string;
 
-    if (uidNum === specialPrizeUID) {
+    if (uidNum === specialPrizeUID.includes(uidNum)) {
       prizeName = "Giải Đặc Biệt";
-    } else if (uidNum === secondPrizeUID) {
+    } else if (uidNum === secondPrizeUID.includes(uidNum)) {
       prizeName = "Giải Nhì";
     } else if (thirdPrizeList.includes(uidNum)) {
       prizeName = "Giải 3";
@@ -128,8 +138,7 @@ export async function POST(req: NextRequest) {
       ...coreData,
       prize: prizeName,
       code: coreData.code,
-      error_message: null, // vẫn trả error_message nếu có
-      // error_message: coreData.error_message ?? null, // vẫn trả error_message nếu có
+      error_message: coreData.error_message ?? null, // vẫn trả error_message nếu có
     });
   } catch (err) {
     return corsResponse(
