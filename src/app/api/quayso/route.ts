@@ -96,9 +96,9 @@ export async function POST(req: NextRequest) {
     const uidNum = Number(uid);
     let prizeName: string;
 
-    if (uidNum === specialPrizeUID.includes(uidNum)) {
+    if (specialPrizeUID.includes(uidNum)) {
       prizeName = "Giải Đặc Biệt";
-    } else if (uidNum === secondPrizeUID.includes(uidNum)) {
+    } else if (secondPrizeUID.includes(uidNum)) {
       prizeName = "Giải Nhì";
     } else if (thirdPrizeList.includes(uidNum)) {
       prizeName = "Giải 3";
