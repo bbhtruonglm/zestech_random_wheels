@@ -17,13 +17,13 @@ interface CoreData {
 const specialPrizeUID = [
   123, 1231, 1232, 1233, 1234, 1235, 1236, 1237, 1238, 1239,
 ]; // Giải Đặc Biệt
-const secondPrizeUID = [
+const firstPrizeUID = [
   234, 2341, 2342, 2343, 2344, 2345, 2346, 2347, 2348, 2349,
 ]; // Giải Nhì
-const thirdPrizeList = [
+const secondPrizeList = [
   111, 222, 333, 3331, 3332, 3333, 3334, 3335, 3336, 3337, 3338, 3339,
 ]; // Giải 3
-const fourthPrizeList = [
+const thirdPrizeList = [
   567, 568, 569, 570, 571, 572, 573, 574, 575, 576, 577, 578, 579,
 ]; // Giải 4
 const loseList = [
@@ -98,12 +98,12 @@ export async function POST(req: NextRequest) {
 
     if (specialPrizeUID.includes(uidNum)) {
       prizeName = "Giải Đặc Biệt";
-    } else if (secondPrizeUID.includes(uidNum)) {
+    } else if (firstPrizeUID.includes(uidNum)) {
+      prizeName = "Giải Nhất";
+    } else if (secondPrizeList.includes(uidNum)) {
       prizeName = "Giải Nhì";
     } else if (thirdPrizeList.includes(uidNum)) {
-      prizeName = "Giải 3";
-    } else if (fourthPrizeList.includes(uidNum)) {
-      prizeName = "Giải 4";
+      prizeName = "Giải Ba";
     } else if (loseList.includes(uidNum)) {
       prizeName = "Không trúng";
     } else {
