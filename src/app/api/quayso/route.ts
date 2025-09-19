@@ -1,5 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// Định nghĩa interface cho dữ liệu trả về từ API core (optional)
+interface CoreData {
+  data?: {
+    current_turn?: number;
+    index?: number;
+    user_id?: string;
+    index_my_gift?: number;
+    voucher_code?: string;
+  };
+  code?: number;
+  error_message?: string;
+}
+
 // Config mock
 const specialPrizeUID = 123; // Giải Đặc Biệt
 const secondPrizeUID = 234; // Giải Nhì
@@ -25,7 +38,11 @@ export async function OPTIONS() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { campaign_id, user_id, uid } = await req.json();
+    const { campaign_id, user_id, uid } = (await req.json()) as {
+      campaign_id?: string;
+      user_id?: string;
+      uid?: string | number | null;
+    };
 
     if (!campaign_id || !user_id) {
       return corsResponse(
@@ -40,14 +57,14 @@ export async function POST(req: NextRequest) {
     );
     url.searchParams.set("campaign_id", campaign_id);
     url.searchParams.set("user_id", user_id);
-    url.searchParams.set("uid", uid ?? "");
+    url.searchParams.set("uid", uid ? String(uid) : "");
 
     const coreRes = await fetch(url.toString(), {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
 
-    const coreData = (await coreRes.json()) as any;
+    const coreData = (await coreRes.json()) as CoreData;
 
     // 2️⃣ Nếu core có error_message
     if (
@@ -67,7 +84,7 @@ export async function POST(req: NextRequest) {
 
     // 3️⃣ Tính toán mock hoặc core prize
     const uidNum = Number(uid);
-    let prizeName = "";
+    let prizeName: string;
 
     if (uidNum === specialPrizeUID) {
       prizeName = "Giải Đặc Biệt";
@@ -111,9 +128,12 @@ export async function POST(req: NextRequest) {
       code: coreData.code,
       error_message: coreData.error_message ?? null, // vẫn trả error_message nếu có
     });
-  } catch (err: unknown) {
+  } catch (err) {
     return corsResponse(
-      { status: "error", message: (err as Error).message },
+      {
+        status: "error",
+        message: err instanceof Error ? err.message : "Unknown error",
+      },
       500
     );
   }
