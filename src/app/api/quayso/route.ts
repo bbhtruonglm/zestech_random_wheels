@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
       user_id,
       uid,
       // coreData: coreData.data ?? null,
-      ...coreData,
+      data: coreData,
       prize: prizeName,
       code: coreData.code,
       error_message: coreData.error_message ?? null, // vẫn trả error_message nếu có
