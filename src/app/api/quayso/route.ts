@@ -17,7 +17,7 @@ interface CoreData {
 const specialPrizeUID = 123; // Giải Đặc Biệt
 const secondPrizeUID = 234; // Giải Nhì
 const thirdPrizeList = [111, 222, 333]; // Giải 3
-const fourthPrizeList = [444, 555, 556]; // Giải 4
+const fourthPrizeList = [444, 555, 556, 557, 558, 559, 560, 561, 562, 563, 564]; // Giải 4
 const loseList = [666, 777, 888, 999]; // Không trúng
 
 function corsResponse(data: Record<string, unknown>, status = 200) {
