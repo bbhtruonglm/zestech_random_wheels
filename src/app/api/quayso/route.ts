@@ -44,23 +44,30 @@ export async function POST(req: NextRequest) {
 
     const coreRes = await fetch(url.toString(), {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
 
-    if (!coreRes.ok) {
+    const coreData = (await coreRes.json()) as any;
+
+    // 2️⃣ Nếu core có error_message
+    if (
+      coreData?.error_message &&
+      coreData.error_message !== "Bạn đã hết lượt chơi"
+    ) {
+      // lỗi khác -> return nguyên lỗi
       return corsResponse(
-        { status: "error", message: "API core lỗi" },
-        coreRes.status
+        {
+          status: "error",
+          message: coreData.error_message,
+          code: coreData.code ?? 400,
+        },
+        400
       );
     }
 
-    const coreData = await coreRes.json();
-
-    // 2️⃣ Tính toán logic mock trên coreData
+    // 3️⃣ Tính toán mock hoặc core prize
     const uidNum = Number(uid);
-    let prizeName = ""; // tên giải cuối cùng
+    let prizeName = "";
 
     if (uidNum === specialPrizeUID) {
       prizeName = "Giải Đặc Biệt";
@@ -94,14 +101,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 3️⃣ Tổng hợp field response
+    // 4️⃣ Trả kết quả về client
     return corsResponse({
       status: "ok",
       user_id,
       uid,
-      coreData: coreData.data, // data gốc từ core
-      prize: prizeName, // kết quả sau tính toán mock
+      coreData: coreData.data ?? null,
+      prize: prizeName,
       code: coreData.code,
+      error_message: coreData.error_message ?? null, // vẫn trả error_message nếu có
     });
   } catch (err: unknown) {
     return corsResponse(
