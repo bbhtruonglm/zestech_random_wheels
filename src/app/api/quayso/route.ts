@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Định nghĩa interface cho dữ liệu trả về từ API core (optional)
+// Định nghĩa interface cho dữ liệu trả về từ API core
 interface CoreData {
   data?: {
     current_turn?: number;
@@ -14,23 +14,38 @@ interface CoreData {
 }
 
 // Config mock
-const specialPrizeUID = [
-  123, 1231, 1232, 1233, 1234, 1235, 1236, 1237, 1238, 1239,
-]; // Giải Đặc Biệt
-const firstPrizeUID = [
-  234, 2341, 2342, 2343, 2344, 2345, 2346, 2347, 2348, 2349,
-]; // Giải Nhì
-const secondPrizeList = [
-  111, 222, 333, 3331, 3332, 3333, 3334, 3335, 3336, 3337, 3338, 3339,
-]; // Giải 3
-const thirdPrizeList = [
-  567, 568, 569, 570, 571, 572, 573, 574, 575, 576, 577, 578, 579,
-]; // Giải 4
-const loseList = [
-  666, 777, 888, 999, 9991, 9992, 9993, 9994, 9995, 9996, 9997, 9998,
+const specialPrizeUID: string[] = ["TEST123", "TEST1234", "TEST1235"]; // Giải Đặc Biệt
+const firstPrizeUID: string[] = ["TEST234", "TEST235", "TEST236"]; // Giải Nhất
+const secondPrizeList: string[] = ["TEST222"]; // Giải Nhì
+const thirdPrizeList: string[] = [
+  "TEST567",
+  "TEST568",
+  "TEST569",
+  "TEST570",
+  "TEST571",
+  "TEST572",
+  "TEST573",
+  "TEST574",
+  "TEST575",
+  "TEST576",
+  "TEST577",
+  "TEST578",
+  "TEST579",
+]; // Giải Ba
+const loseList: string[] = [
+  "TEST999",
+  "TEST998",
+  "TEST997",
+  "TEST996",
+  "TEST995",
+  "TEST994",
+  "TEST993",
 ]; // Không trúng
 
-function corsResponse(data: Record<string, unknown>, status = 200) {
+function corsResponse(
+  data: Record<string, unknown>,
+  status = 200
+): NextResponse {
   return new NextResponse(JSON.stringify(data), {
     status,
     headers: {
@@ -42,17 +57,19 @@ function corsResponse(data: Record<string, unknown>, status = 200) {
   });
 }
 
-export async function OPTIONS() {
+export async function OPTIONS(): Promise<NextResponse> {
   return corsResponse({}, 200);
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const { campaign_id, user_id, uid } = (await req.json()) as {
+    const body: {
       campaign_id?: string;
       user_id?: string;
       uid?: string | number | null;
-    };
+    } = await req.json();
+
+    const { campaign_id, user_id, uid } = body;
 
     if (!campaign_id || !user_id) {
       return corsResponse(
@@ -74,7 +91,7 @@ export async function POST(req: NextRequest) {
       headers: { "Content-Type": "application/json" },
     });
 
-    const coreData = (await coreRes.json()) as CoreData;
+    const coreData: CoreData = await coreRes.json();
 
     // 2️⃣ Nếu core có error_message
     if (
@@ -93,39 +110,21 @@ export async function POST(req: NextRequest) {
     }
 
     // 3️⃣ Tính toán mock hoặc core prize
-    const uidNum = Number(uid);
     let prizeName: string;
 
-    if (specialPrizeUID.includes(uidNum)) {
+    const uidStr = uid ? String(uid) : "";
+
+    if (specialPrizeUID.includes(uidStr)) {
       prizeName = "Giải Đặc Biệt";
-    } else if (firstPrizeUID.includes(uidNum)) {
+    } else if (firstPrizeUID.includes(uidStr)) {
       prizeName = "Giải Nhất";
-    } else if (secondPrizeList.includes(uidNum)) {
+    } else if (secondPrizeList.includes(uidStr)) {
       prizeName = "Giải Nhì";
-    } else if (thirdPrizeList.includes(uidNum)) {
+    } else if (thirdPrizeList.includes(uidStr)) {
       prizeName = "Giải Ba";
-    } else if (loseList.includes(uidNum)) {
+    } else if (loseList.includes(uidStr)) {
       prizeName = "Không trúng";
     } else {
-      //   // nếu không thuộc mock → dùng index_my_gift của core để suy ra tên giải
-      //   const index = coreData?.data?.index_my_gift;
-      //   switch (index) {
-      //     case 1:
-      //       prizeName = "Giải Đặc Biệt";
-      //       break;
-      //     case 2:
-      //       prizeName = "Giải Nhì";
-      //       break;
-      //     case 3:
-      //       prizeName = "Giải 3";
-      //       break;
-      //     case 4:
-      //       prizeName = "Giải 4";
-      //       break;
-      //     default:
-      //       prizeName = "Không trúng";
-      //       break;
-      //   }
       prizeName = "Không trúng";
     }
 
@@ -134,7 +133,6 @@ export async function POST(req: NextRequest) {
       status: "ok",
       user_id,
       uid,
-      // coreData: coreData.data ?? null,
       data: coreData,
       prize: prizeName,
       code: coreData.code,
