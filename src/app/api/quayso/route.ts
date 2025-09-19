@@ -128,8 +128,8 @@ export async function POST(req: NextRequest) {
       ...coreData,
       prize: prizeName,
       code: coreData.code,
-      // error_message: coreData.error_message ?? null, // vẫn trả error_message nếu có
       error_message: null, // vẫn trả error_message nếu có
+      // error_message: coreData.error_message ?? null, // vẫn trả error_message nếu có
     });
   } catch (err) {
     return corsResponse(
