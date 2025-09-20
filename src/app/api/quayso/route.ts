@@ -13,33 +13,42 @@ interface CoreData {
   error_message?: string;
 }
 
-// Config mock
-const specialPrizeUID: string[] = ["TEST123", "TEST1234", "TEST1235"]; // Giải Đặc Biệt
-const firstPrizeUID: string[] = ["TEST234", "TEST235", "TEST236"]; // Giải Nhất
-const secondPrizeList: string[] = ["TEST222"]; // Giải Nhì
+// Config mock 2
+const specialPrizeUID: string[] = ["VIP001", "VIP002", "VIP003"]; // Giải Đặc Biệt
+const firstPrizeUID: string[] = ["FST101", "FST102", "FST103"]; // Giải Nhất
+const secondPrizeList: string[] = [
+  "SEC201",
+  "SEC202",
+  "SEC203",
+  "SEC204",
+  "SEC205",
+  "SEC206",
+  "SEC207",
+  "SEC208",
+]; // Giải Nhì
 const thirdPrizeList: string[] = [
-  "TEST567",
-  "TEST568",
-  "TEST569",
-  "TEST570",
-  "TEST571",
-  "TEST572",
-  "TEST573",
-  "TEST574",
-  "TEST575",
-  "TEST576",
-  "TEST577",
-  "TEST578",
-  "TEST579",
+  "THD301",
+  "THD302",
+  "THD303",
+  "THD304",
+  "THD305",
+  "THD306",
+  "THD307",
+  "THD308",
+  "THD309",
+  "THD310",
+  "THD311",
+  "THD312",
+  "THD313",
 ]; // Giải Ba
 const loseList: string[] = [
-  "TEST999",
-  "TEST998",
-  "TEST997",
-  "TEST996",
-  "TEST995",
-  "TEST994",
-  "TEST993",
+  "LOS401",
+  "LOS402",
+  "LOS403",
+  "LOS404",
+  "LOS405",
+  "LOS406",
+  "LOS407",
 ]; // Không trúng
 
 function corsResponse(
