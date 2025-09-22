@@ -13,43 +13,51 @@ interface CoreData {
   error_message?: string;
 }
 
-// Config mock 2
-const specialPrizeUID: string[] = ["VIP001", "VIP002", "VIP003"]; // Giải Đặc Biệt
-const firstPrizeUID: string[] = ["FST101", "FST102", "FST103"]; // Giải Nhất
+// Giải Đặc Biệt
+const specialPrizeUID: string[] = ["9990000001", "9990000002", "9990000003"];
+
+// Giải Nhất
+const firstPrizeUID: string[] = ["9991000001", "9991000002", "9991000003"];
+
+// Giải Nhì
 const secondPrizeList: string[] = [
-  "SEC201",
-  "SEC202",
-  "SEC203",
-  "SEC204",
-  "SEC205",
-  "SEC206",
-  "SEC207",
-  "SEC208",
-]; // Giải Nhì
+  "9992000001",
+  "9992000002",
+  "9992000003",
+  "9992000004",
+  "9992000005",
+  "9992000006",
+  "9992000007",
+  "9992000008",
+];
+
+// Giải Ba
 const thirdPrizeList: string[] = [
-  "THD301",
-  "THD302",
-  "THD303",
-  "THD304",
-  "THD305",
-  "THD306",
-  "THD307",
-  "THD308",
-  "THD309",
-  "THD310",
-  "THD311",
-  "THD312",
-  "THD313",
-]; // Giải Ba
+  "9993000001",
+  "9993000002",
+  "9993000003",
+  "9993000004",
+  "9993000005",
+  "9993000006",
+  "9993000007",
+  "9993000008",
+  "9993000009",
+  "9993000010",
+  "9993000011",
+  "9993000012",
+  "9993000013",
+];
+
+// Không trúng
 const loseList: string[] = [
-  "LOS401",
-  "LOS402",
-  "LOS403",
-  "LOS404",
-  "LOS405",
-  "LOS406",
-  "LOS407",
-]; // Không trúng
+  "9994000001",
+  "9994000002",
+  "9994000003",
+  "9994000004",
+  "9994000005",
+  "9994000006",
+  "9994000007",
+];
 
 function corsResponse(
   data: Record<string, unknown>,
@@ -87,13 +95,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
+    // chuẩn hóa uid: trim + uppercase
+    const uidStr = uid ? String(uid).trim().toUpperCase() : "";
+
     // 1️⃣ Call API core trước
     const url = new URL(
       "https://api-gamification.merchant.vn/v1/gamification/oncetask/play"
     );
-    url.searchParams.set("campaign_id", campaign_id);
-    url.searchParams.set("user_id", user_id);
-    url.searchParams.set("uid", uid ? String(uid) : "");
+    url.searchParams.set("campaign_id", campaign_id.trim());
+    url.searchParams.set("user_id", user_id.trim());
+    url.searchParams.set("uid", uidStr);
 
     const coreRes = await fetch(url.toString(), {
       method: "GET",
@@ -121,8 +132,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // 3️⃣ Tính toán mock hoặc core prize
     let prizeName: string;
 
-    const uidStr = uid ? String(uid) : "";
-
     if (specialPrizeUID.includes(uidStr)) {
       prizeName = "Giải Đặc Biệt";
     } else if (firstPrizeUID.includes(uidStr)) {
@@ -140,8 +149,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // 4️⃣ Trả kết quả về client
     return corsResponse({
       status: "ok",
-      user_id,
-      uid,
+      user_id: user_id.trim(),
+      uid: uidStr,
       data: coreData,
       prize: prizeName,
       code: coreData.code,
