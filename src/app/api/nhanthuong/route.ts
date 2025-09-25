@@ -11,6 +11,7 @@ interface CoreData {
   code?: number;
   error_message?: string;
 }
+
 // Giải Đặc Biệt
 const specialPrizeUID: string[] = [
   "7770000001",
@@ -119,6 +120,32 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       `[${new Date().toISOString()}] Start POST route, uid=${uidStr}`
     );
 
+    // 1️⃣ Call API ngoài
+    let apiUserData: any = null;
+    try {
+      const apiRes = await fetch(
+        "https://api-gamification.merchant.vn/v1/gamification/user/gamification_user",
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json, text/javascript, */*; q=0.01",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: "get_info",
+            campaign_id: campaign_id,
+            user_id: user_id,
+            uid: uidStr,
+          }),
+        }
+      );
+
+      const json = await apiRes.json();
+      apiUserData = json?.data?.user || null;
+    } catch (e) {
+      console.error("Call API ngoài lỗi:", e);
+    }
+
     // 2️⃣ Tính prize
     const startPrizeCalc = Date.now();
     let prizeName = "Không trúng";
@@ -140,6 +167,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       user_id: user_id.trim(),
       uid: uidStr,
       prize: prizeName,
+      user_data: apiUserData, // thêm data từ API ngoài
     };
 
     console.log(
