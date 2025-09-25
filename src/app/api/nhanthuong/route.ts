@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+interface ApiUser {
+  current_turn?: number;
+  [key: string]: unknown;
+}
 
 // Giải Đặc Biệt
 const specialPrizeUID: string[] = [
@@ -113,7 +117,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
 
     // 1️⃣ Call API ngoài
-    let apiUserData: unknown = null;
+    let apiUserData: ApiUser | null = null;
+
     try {
       const apiRes = await fetch(
         "https://api-gamification.merchant.vn/v1/gamification/user/gamification_user",
@@ -147,21 +152,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     else if (thirdPrizeList.includes(uidStr)) prizeName = "Giải Ba";
     else if (loseList.includes(uidStr)) prizeName = "Không trúng";
 
-    console.log(
-      `[${new Date().toISOString()}] Prize calculated in ${
-        Date.now() - startPrizeCalc
-      }ms, prize=${prizeName}`
-    );
-
     // 3️⃣ Trả kết quả cuối cho FE
     const response = {
       status: "ok",
       user_id: user_id.trim(),
       uid: uidStr,
-      prize: prizeName,
       user_data: apiUserData, // thêm data từ API ngoài
     };
 
+    if (apiUserData.current_turn !== 1) {
+      apiUserData.prize = prizeName;
+    }
     console.log(
       `[${new Date().toISOString()}] Total POST processing time: ${
         Date.now() - startTotal
