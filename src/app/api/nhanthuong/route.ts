@@ -1,17 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-interface CoreData {
-  data?: {
-    current_turn?: number;
-    index?: number;
-    user_id?: string;
-    index_my_gift?: number;
-    voucher_code?: string;
-  };
-  code?: number;
-  error_message?: string;
-}
-
 // Giải Đặc Biệt
 const specialPrizeUID: string[] = [
   "7770000001",
@@ -121,7 +109,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
 
     // 1️⃣ Call API ngoài
-    let apiUserData: any = null;
+    let apiUserData: unknown = null;
     try {
       const apiRes = await fetch(
         "https://api-gamification.merchant.vn/v1/gamification/user/gamification_user",
