@@ -110,7 +110,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     } = await req.json();
     const { campaign_id, user_id, uid } = body;
 
-    if (!campaign_id || !user_id) {
+    // if (!campaign_id || !user_id) {
+    if (!campaign_id) {
       return corsResponse(
         { status: "error", message: "Thiếu campaign_id hoặc user_id" },
         400
