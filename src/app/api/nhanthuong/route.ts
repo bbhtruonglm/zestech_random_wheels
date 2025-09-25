@@ -3,6 +3,15 @@ interface ApiUser {
   current_turn?: number;
   [key: string]: unknown;
 }
+interface ResponseData {
+  status: string;
+  user_id: string;
+  uid: string;
+  user_data: ApiUser | null;
+  prize?: string; // optional
+
+  [key: string]: unknown; // thêm dòng này
+}
 
 // Giải Đặc Biệt
 const specialPrizeUID: string[] = [
@@ -153,7 +162,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     else if (loseList.includes(uidStr)) prizeName = "Không trúng";
 
     // 3️⃣ Trả kết quả cuối cho FE
-    const response = {
+    const response: ResponseData = {
       status: "ok",
       user_id: user_id.trim(),
       uid: uidStr,
@@ -161,7 +170,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     };
 
     if (apiUserData.current_turn !== 1) {
-      apiUserData.prize = prizeName;
+      response.prize = prizeName;
     }
     console.log(
       `[${new Date().toISOString()}] Total POST processing time: ${
