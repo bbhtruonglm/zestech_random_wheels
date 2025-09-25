@@ -260,70 +260,78 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       `[${new Date().toISOString()}] Start POST route, uid=${uidStr}`
     );
 
-    // 1️⃣ Trả ngay FE
-    const earlyResponse = corsResponse({
-      status: "processing",
-      message: "Request received",
+    // 1️⃣ Call API core
+    const startCoreCall = Date.now();
+    const url = new URL(
+      "https://api-gamification.merchant.vn/v1/gamification/oncetask/play"
+    );
+    url.searchParams.set("campaign_id", campaign_id.trim());
+    url.searchParams.set("user_id", user_id.trim());
+    url.searchParams.set("uid", uidStr);
+
+    const coreRes = await fetch(url.toString(), {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
     });
 
-    // 2️⃣ Xử lý API core async mà không block FE
-    (async () => {
-      const startCoreCall = Date.now();
-      try {
-        const url = new URL(
-          "https://api-gamification.merchant.vn/v1/gamification/oncetask/play"
-        );
-        url.searchParams.set("campaign_id", campaign_id.trim());
-        url.searchParams.set("user_id", user_id.trim());
-        url.searchParams.set("uid", uidStr);
+    const coreData: CoreData = await coreRes.json();
+    console.log(
+      `[${new Date().toISOString()}] API core fetched in ${
+        Date.now() - startCoreCall
+      }ms`
+    );
 
-        const coreRes = await fetch(url.toString(), {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
+    if (
+      coreData?.error_message &&
+      coreData.error_message !== "Bạn đã hết lượt chơi"
+    ) {
+      return corsResponse(
+        {
+          status: "error",
+          message: coreData.error_message,
+          code: coreData.code ?? 400,
+        },
+        400
+      );
+    }
 
-        const coreData: CoreData = await coreRes.json();
-        console.log(
-          `[${new Date().toISOString()}] API core fetched in ${
-            Date.now() - startCoreCall
-          }ms`,
-          coreData
-        );
-
-        // Tính giải mock
-        const startPrizeCalc = Date.now();
-        let prizeName = "Không trúng";
-        if (specialPrizeUID.includes(uidStr)) prizeName = "Giải Đặc Biệt";
-        else if (firstPrizeUID.includes(uidStr)) prizeName = "Giải Nhất";
-        else if (secondPrizeList.includes(uidStr)) prizeName = "Giải Nhì";
-        else if (thirdPrizeList.includes(uidStr)) prizeName = "Giải Ba";
-        else if (loseList.includes(uidStr)) prizeName = "Không trúng";
-        console.log(
-          `[${new Date().toISOString()}] Prize calculated in ${
-            Date.now() - startPrizeCalc
-          }ms, prize=${prizeName}`
-        );
-
-        // Có thể lưu vào DB hoặc gửi notification SSE/WebSocket
-        console.log(
-          `[${new Date().toISOString()}] Total async processing for uid=${uidStr} took ${
-            Date.now() - startCoreCall
-          }ms`
-        );
-      } catch (err) {
-        console.error(
-          `[${new Date().toISOString()}] Error processing core API:`,
-          err
-        );
-      }
-    })();
+    // 2️⃣ Tính prize
+    const startPrizeCalc = Date.now();
+    let prizeName = "Không trúng";
+    if (specialPrizeUID.includes(uidStr)) prizeName = "Giải Đặc Biệt";
+    else if (firstPrizeUID.includes(uidStr)) prizeName = "Giải Nhất";
+    else if (secondPrizeList.includes(uidStr)) prizeName = "Giải Nhì";
+    else if (thirdPrizeList.includes(uidStr)) prizeName = "Giải Ba";
+    else if (loseList.includes(uidStr)) prizeName = "Không trúng";
 
     console.log(
-      `[${new Date().toISOString()}] POST route returned to FE in ${
+      `[${new Date().toISOString()}] Prize calculated in ${
+        Date.now() - startPrizeCalc
+      }ms, prize=${prizeName}`
+    );
+
+    // 3️⃣ Trả kết quả cuối cho FE
+    const response = {
+      status: "ok",
+      user_id: user_id.trim(),
+      uid: uidStr,
+      data: coreData,
+      prize: prizeName,
+      code: coreData.code,
+      error_message: coreData.error_message ?? null,
+      timings: {
+        total: Date.now() - startTotal,
+        coreCall: Date.now() - startCoreCall,
+        prizeCalc: Date.now() - startPrizeCalc,
+      },
+    };
+
+    console.log(
+      `[${new Date().toISOString()}] Total POST processing time: ${
         Date.now() - startTotal
       }ms`
     );
-    return earlyResponse;
+    return corsResponse(response);
   } catch (err) {
     return corsResponse(
       {
