@@ -85,6 +85,10 @@ function corsResponse(
   });
 }
 
+export async function OPTIONS(): Promise<NextResponse> {
+  return corsResponse({}, 200);
+}
+
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const startTotal = Date.now();
   try {
