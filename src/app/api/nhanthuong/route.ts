@@ -105,9 +105,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const { campaign_id, user_id, uid } = body;
 
-    if (!campaign_id || !user_id) {
+    if (!campaign_id) {
       return corsResponse(
-        { status: "error", message: "Thiếu campaign_id hoặc user_id" },
+        { status: "error", message: "Thiếu campaign_id" },
         400
       );
     }
